@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraExam — Oral Exam Booking System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-bg-hover: rgba(255, 255, 255, 0.14);
+      --glass-bg-active: rgba(255, 255, 255, 0.22);
+      --glass-border: rgba(255, 255, 255, 0.22);
+      --glass-highlight: rgba(255, 255, 255, 0.45);
+      --text-primary: #f8fafc;
+      --text-secondary: rgba(248, 250, 252, 0.68);
+      --accent-cyan: #38bdf8;
+      --accent-violet: #a855f7;
+      --accent-emerald: #34d399;
+      --accent-rose: #fb7185;
+      --shadow-glass: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.35), inset 0 -1px 1px rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: #060814;
+      color: var(--text-primary);
+      overflow-x: hidden;
+      position: relative;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .liquid-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 20%, #0f172a 0%, #050711 100%);
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(95px);
+      opacity: 0.65;
+      animation: floatOrb 18s infinite alternate ease-in-out;
+    }
+
+    .orb-1 {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, #6366f1, #a855f7);
+      top: -120px;
+      left: -100px;
+    }
+
+    .orb-2 {
+      width: 460px;
+      height: 460px;
+      background: radial-gradient(circle, #0ea5e9, #2dd4bf);
+      bottom: -120px;
+      right: -80px;
+      animation-delay: -6s;
+    }
+
+    .orb-3 {
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, #ec4899, #8b5cf6);
+      top: 40%;
+      left: 55%;
+      animation-delay: -11s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(60px, -40px) scale(1.12); }
+      100% { transform: translate(-40px, 50px) scale(0.94); }
+    }
+
+    .app-container {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    .liquid-glass {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.04) 100%);
+      backdrop-filter: blur(30px) saturate(190%);
+      -webkit-backdrop-filter: blur(30px) saturate(190%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-glass);
+      border-radius: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .liquid-glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.5), rgba(255,255,255,0.05) 45%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.22));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    header.topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 1.75rem;
+      margin-bottom: 2rem;
+      border-radius: 999px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.45), rgba(168, 85, 247, 0.45));
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-text h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-text p {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 12px var(--accent-emerald);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      padding: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.02em;
+    }
+
+    .section-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.6rem;
+    }
+
+    .mode-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+      padding: 0.45rem;
+      background: rgba(0, 0, 0, 0.28);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      margin-bottom: 1.6rem;
+    }
+
+    .mode-btn {
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 0.95rem 1rem;
+      border-radius: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .mode-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .mode-btn.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.28), rgba(168, 85, 247, 0.28));
+      border-color: rgba(255, 255, 255, 0.38);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+    }
+
+    .mode-banner {
+      padding: 1rem 1.2rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .mode-banner-info h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      color: #fff;
+    }
+
+    .mode-banner-info p {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .mode-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .badge-f2f {
+      background: rgba(251, 191, 36, 0.2);
+      color: #fde68a;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+    }
+
+    .badge-online {
+      background: rgba(56, 189, 248, 0.2);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .field-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: 0.25rem;
+    }
+
+    .glass-input,
+    .glass-select {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text-primary);
+      font-size: 0.92rem;
+      outline: none;
+      transition: all 0.25s ease;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .glass-select option {
+      background: #0f172a;
+      color: #fff;
+    }
+
+    .glass-input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .glass-input:focus,
+    .glass-select:focus {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(56, 189, 248, 0.65);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+    }
+
+    .date-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.65rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .date-card {
+      padding: 0.75rem 0.5rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      user-select: none;
+    }
+
+    .date-card:hover {
+      background: var(--glass-bg-hover);
+      transform: translateY(-2px);
+    }
+
+    .date-card.selected {
+      background: linear-gradient(145deg, rgba(56, 189, 248, 0.32), rgba(99, 102, 241, 0.32));
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 10px 24px rgba(56, 189, 248, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+    }
+
+    .date-day {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .date-num {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin: 0.15rem 0;
+    }
+
+    .date-month {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.7rem;
+      margin-bottom: 1.6rem;
+    }
+
+    @media (max-width: 550px) {
+      .slots-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .date-strip {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .slot-pill {
+      padding: 0.8rem 0.65rem;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+      font-size: 0.84rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.22s ease;
+    }
+
+    .slot-pill:hover:not(:disabled) {
+      background: var(--glass-bg-hover);
+      border-color: rgba(255, 255, 255, 0.32);
+      transform: translateY(-1px);
+    }
+
+    .slot-pill.selected {
+      background: linear-gradient(135deg, rgba(52, 211, 153, 0.32), rgba(56, 189, 248, 0.32));
+      border-color: rgba(52, 211, 153, 0.7);
+      box-shadow: 0 8px 20px rgba(52, 211, 153, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+
+    .slot-pill:disabled {
+      opacity: 0.32;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 1rem 1.4rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.55), rgba(168, 85, 247, 0.55));
+      color: #fff;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      box-shadow: 0 14px 32px rgba(99, 102, 241, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.65);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-2px) scale(1.005);
+      box-shadow: 0 18px 38px rgba(56, 189, 248, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    }
+
+    .primary-btn:active {
+      transform: translateY(0);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .filter-tab {
+      padding: 0.48rem 0.95rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-tab.active {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .bookings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-height: 540px;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+
+    .booking-card {
+      padding: 1.2rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .booking-card:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .booking-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .booking-course {
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .booking-student {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.15rem;
+    }
+
+    .booking-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.55rem;
+      padding: 0.75rem;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.78rem;
+    }
+
+    .meta-item span {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .meta-item strong {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .booking-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .secondary-btn {
+      padding: 0.5rem 0.9rem;
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .danger-btn {
+      padding: 0.5rem 0.85rem;
+      border-radius: 11px;
+      background: rgba(251, 113, 133, 0.14);
+      border: 1px solid rgba(251, 113, 133, 0.35);
+      color: #fecdd3;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .danger-btn:hover {
+      background: rgba(251, 113, 133, 0.26);
+    }
+
+    .toast-notification {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      padding: 1rem 1.35rem;
+      border-radius: 18px;
+      color: #fff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transform: translateY(130%);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 100;
+      max-width: 360px;
+    }
+
+    .toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 16, 0.65);
+      backdrop-filter: blur(12px);
+      display: none;
+      place-items: center;
+      z-index: 90;
+      padding: 1.5rem;
+    }
+
+    .modal-backdrop.open {
+      display: grid;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 460px;
+      padding: 1.8rem;
+    }
+
+    .modal-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-card p {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.2rem;
+      line-height: 1.5;
+    }
+
+    .modal-detail-box {
+      padding: 1rem;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      margin-bottom: 1.25rem;
+      font-size: 0.84rem;
+      line-height: 1.65;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="liquid-canvas">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="app-container">
+    <header class="topbar liquid-glass">
+      <div class="brand">
+        <div class="brand-icon">AE</div>
+        <div class="brand-text">
+          <h1>AuraExam Portal</h1>
+          <p>Oral Defense &amp; Viva Voce Scheduling System</p>
+        </div>
+      </div>
+      <div class="status-pill">
+        <span class="pulse-dot"></span>
+        <span id="activeBookingsCount">2 Active Slots</span>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="panel liquid-glass">
+        <h2 class="section-title">Schedule Oral Examination</h2>
+        <p class="section-subtitle">Choose your preferred examination modality, panelist, and time slot.</p>
+
+        <div class="mode-switcher" role="tablist">
+          <button type="button" class="mode-btn active" id="modeF2F" data-mode="f2f">
+            <span>🏛️ Face-to-Face</span>
+          </button>
+          <button type="button" class="mode-btn" id="modeOnline" data-mode="online">
+            <span>🌐 Online Virtual Room</span>
+          </button>
+        </div>
+
+        <div class="mode-banner" id="modeBanner">
+          <div class="mode-banner-info">
+            <h4 id="modeBannerTitle">On-Campus Examination Room</h4>
+            <p id="modeBannerDesc">Arrive 15 minutes early with your university ID and printed rubric sheet.</p>
+          </div>
+          <span class="mode-badge badge-f2f" id="modeBannerBadge">In-Person</span>
+        </div>
+
+        <form id="bookingForm">
+          <div class="form-grid">
+            <div class="field-group">
+              <label for="studentName">Student Full Name</label>
+              <input type="text" id="studentName" class="glass-input" placeholder="e.g., Alex Rivera" required />
+            </div>
+
+            <div class="field-group">
+              <label for="studentId">Student ID Number</label>
+              <input type="text" id="studentId" class="glass-input" placeholder="e.g., 2026-10492" required />
+            </div>
+
+            <div class="field-group">
+              <label for="courseSelect">Course / Subject</label>
+              <select id="courseSelect" class="glass-select" required>
+                <option value="CS 401 — Capstone Thesis Defense">CS 401 — Capstone Thesis Defense</option>
+                <option value="CS 305 — Algorithms & Complexity Viva">CS 305 — Algorithms &amp; Complexity Viva</option>
+                <option value="CS 312 — Software Engineering Architecture">CS 312 — Software Engineering Architecture</option>
+                <option value="CS 210 — Database Systems Oral Assessment">CS 210 — Database Systems Oral Assessment</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="examinerSelect">Assigned Panel / Examiner</label>
+              <select id="examinerSelect" class="glass-select" required>
+                <option value="Dr. Elena Vance (Panel Chair)">Dr. Elena Vance (Panel Chair)</option>
+                <option value="Prof. Marcus Sterling">Prof. Marcus Sterling</option>
+                <option value="Dr. Kenji Takahashi">Dr. Kenji Takahashi</option>
+                <option value="Prof. Clara Mendoza">Prof. Clara Mendoza</option>
+              </select>
+            </div>
+
+            <div class="field-group full-width" id="dynamicLocationField">
+              <label for="locationOption" id="locationLabel">Preferred Campus Room</label>
+              <select id="locationOption" class="glass-select"></select>
+            </div>
+          </div>
+
+          <div class="field-group" style="margin-bottom: 0.5rem;">
+            <label>Select Examination Date</label>
+          </div>
+          <div class="date-strip" id="dateStrip"></div>
+
+          <div class="field-group" style="margin-bottom: 0.5rem;">
+            <label>Available 30-Minute Time Slots</label>
+          </div>
+          <div class="slots-grid" id="slotsGrid"></div>
+
+          <button type="submit" class="primary-btn">Confirm Oral Exam Booking</button>
+        </form>
+      </section>
+
+      <aside class="panel liquid-glass">
+        <h2 class="section-title">Scheduled Sessions</h2>
+        <p class="section-subtitle">Manage your upcoming Face-to-Face and Online oral exams.</p>
+
+        <div class="filter-tabs" id="filterTabs">
+          <button type="button" class="filter-tab active" data-filter="all">All Bookings</button>
+          <button type="button" class="filter-tab" data-filter="f2f">Face-to-Face</button>
+          <button type="button" class="filter-tab" data-filter="online">Online</button>
+        </div>
+
+        <div class="bookings-list" id="bookingsList"></div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="detailModal">
+    <div class="modal-card liquid-glass">
+      <h3 id="modalTitle">Session Details</h3>
+      <p id="modalSubtitle">Review check-in instructions for your oral exam.</p>
+      <div class="modal-detail-box" id="modalContent"></div>
+      <button type="button" class="primary-btn" id="closeModalBtn">Done</button>
+    </div>
+  </div>
+
+  <div class="toast-notification liquid-glass" id="toastBox"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
